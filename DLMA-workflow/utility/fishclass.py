@@ -1,4 +1,4 @@
-from fishutil import *
+from .fishutil import *
 
 class Zebrafish():
 

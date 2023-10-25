@@ -29,8 +29,8 @@ from detectron2.data.catalog import DatasetCatalog
 from detectron2.data import transforms as T
 
 # import custom library
-from fishutil import *
-from fishclass import Zebrafish
+from utility.fishutil import *
+from utility.fishclass import Zebrafish
 
 ##add some input
 parser = argparse.ArgumentParser()
@@ -49,10 +49,14 @@ image_type = args.image_type
 
 # train registry
 from detectron2.data.datasets import register_coco_instances
-register_coco_instances("zebrafish_train", {}, "~/Downloads/detectron2/zebrafish_archives/zebrafish_train.json",
-                        "~/Downloads/detectron2/zebrafish_archives/train_images")
-register_coco_instances("zebrafish_test", {}, "~/Downloads/detectron2/zebrafish_archives/zebrafish_test.json",
-                        "/~/Downloads/detectron2/zebrafish_archives/test_images")
+# register_coco_instances("zebrafish_train", {}, "~/Downloads/detectron2/zebrafish_archives/zebrafish_train.json",
+#                         "~/Downloads/detectron2/zebrafish_archives/train_images")
+# register_coco_instances("zebrafish_test", {}, "~/Downloads/detectron2/zebrafish_archives/zebrafish_test.json",
+#                         "/~/Downloads/detectron2/zebrafish_archives/test_images")
+register_coco_instances("zebrafish_train", {}, "../data/zebrafish_train.json",
+                        "../data/train_images")
+register_coco_instances("zebrafish_test", {}, "../data/zebrafish_test.json",
+                        "../data/test_images")
 
 # visualize training data
 # my_data_train_metadata = MetadataCatalog.get("zebrafish_train")
@@ -76,7 +80,7 @@ torch.backends.cudnn.benchmark = True
 cfg = get_cfg()
 # # use relative path
 cfg.merge_from_file(model_zoo.get_config_file("COCO-InstanceSegmentation/mask_rcnn_R_101_FPN_3x.yaml"))
-cfg.OUTPUT_DIR = "ckpt/maskrcnn_r_101"
+cfg.OUTPUT_DIR = "../ckpt/maskrcnn_r_101"
 
 #cfg.DATASETS.TRAIN/TEST should be a tuple instead of string, use ("my_dataset_train",) instead of ("my_dataset_train")
 cfg.DATASETS.TRAIN = ("zebrafish_train", )
@@ -187,7 +191,9 @@ for d in sorted(glob.glob("%s/*%s" %(input_path,image_type))):
     zebrafish_endpoints = update_template(zebrafish)
 
     print("------ Creating the dataframe of zebrafish endpoints ------")
-    df = df.append(zebrafish_endpoints, ignore_index=True)
+    # df = df.append(zebrafish_endpoints, ignore_index=True)
+    df = pd.concat([df, pd.DataFrame([zebrafish_endpoints])], ignore_index=True)
+
 
     tb = texttable.Texttable()
     tb.set_cols_align(['c' for i in range(18)])
